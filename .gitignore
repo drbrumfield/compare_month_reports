@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.csv
+*.xlsx
+outputs/Positions_CLS_Adopted.html
+outputs/Positions_CLS_Adopted.md
+outputs/Positions_CLS_Adopted.Rmd
