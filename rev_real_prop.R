@@ -9,10 +9,9 @@ library(lubridate)
 library(rio)
 library(magrittr)
 
-source("G:/Analyst Folders/Lillian/- R/bbmr_functions.R")
 
 raw <- list(
-  jul = import("G:/BBMR - Revenue Team/2. Revenue Accounts/A001 - General Fund/001 - Real Property/Assessment Files/FIscal 2023/1. July 2023.xlsx"),
+  jul = import("G:/BBMR - Revenue Team/2. Revenue Accounts/A001 - General Fund/001 - Real Property/Assessment Files/Fiscal 2023/1. July 2023.xlsx"),
   nov = import("//balt-gissto-srv/Geoshare/geodata/Cadastral/TAB_REALPROP1.csv")
 )
 

@@ -25,12 +25,13 @@ summary = summary(df)
 
 table = summary$diffs.table  
 
-test = table %>% map_df(as_tibble)
-test = as_tibble(as.data.frame(do.call(cbind, table)))
-test = rbindlist(table)
-test = enframe(table)
-test = data.frame(table)
-test = data.frame(t(sapply(table,c)))
+#convert table to dataframe
+# test = table %>% map_df(as_tibble)
+# test = as_tibble(as.data.frame(do.call(cbind, table)))
+# test = rbindlist(table)
+# test = enframe(table)
+# test = data.frame(table)
+# test = data.frame(t(sapply(table,c)))
 
 result = table %>% filter(values.x != values.y | var.x != var.y)
 
@@ -61,8 +62,8 @@ col_order <- c("Job Number",
 pivot <- pivot %>%
   select(col_order) %>%
   arrange(`Job Number`) %>%
-  rename_with(.cols = starts_with("values.x"), ~ gsub("values.x", "FY23 Adopted", x = .x)) %>%
-  rename_with(.cols = starts_with("values.y"), ~ gsub("values.y", "FY24 CLS", x= .x))
+  rename_with(.cols = starts_with("values.x"), ~ gsub("values.x", "FY24 CLS", x = .x)) %>%
+  rename_with(.cols = starts_with("values.y"), ~ gsub("values.y", "FY24 Prop", x= .x))
 
 
 #map on agency, service
