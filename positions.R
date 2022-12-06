@@ -20,6 +20,11 @@
 # 
 # saveReport(df, reportName = "outputs/Positions_CLS_Adopted")
 
+##dplyr anti_join() on all columns
+col_names = colnames(position_start)
+
+df = anti_join(position_start, position_end, by = c(col_names))
+
 df = comparedf(position_end, position_start, by = "Job Number")
 summary = summary(df)
 

@@ -1,54 +1,70 @@
 # ##revenue real property tax comparison files
-# library(readxlsb)
-# 
-# start <- read_xlsb(path = "G:/BBMR - Revenue Team/2. Revenue Accounts/A001 - General Fund/001 - Real Property/Assessment Files/Fiscal 2023/1. July FY 2023.xlsb",
-#                 sheet = "TAB_REALPROP1", range = "A:D, S, AA, AD, AG, AO, AQ")
+#
 
 library(tidyverse)
 library(lubridate)
 library(rio)
 library(magrittr)
+library(readxlsb)
+library(readxl)
 
+# 
+# start <- read_xlsb(path = "G:/BBMR - Revenue Team/2. Revenue Accounts/A001 - General Fund/001 - Real Property/Assessment Files/Fiscal 2023/1. July FY 2023.xlsb",
+#                    sheet = "TAB_REALPROP1", range = "A:D, S, AA, AD, AG, AO, AQ")
+# 
+# end <- read_xlsb(path = "G:/BBMR - Revenue Team/2. Revenue Accounts/A001 - General Fund/001 - Real Property/Assessment Files/Fiscal 2023/9. November FY 2023.xlsb",
+#                    sheet = "TAB_REALPROP_11072022")
 
 raw <- list(
-  jul = import("G:/BBMR - Revenue Team/2. Revenue Accounts/A001 - General Fund/001 - Real Property/Assessment Files/Fiscal 2023/1. July 2023.xlsx"),
-  nov = import("//balt-gissto-srv/Geoshare/geodata/Cadastral/TAB_REALPROP1.csv")
+  jul = readxl::read_excel("G:/BBMR - Revenue Team/2. Revenue Accounts/A001 - General Fund/001 - Real Property/Assessment Files/Fiscal 2023/1. July FY 2023.xlsx",
+                  sheet = "TAB_REALPROP1"),
+  nov = readxl::read_excel("G:/BBMR - Revenue Team/2. Revenue Accounts/A001 - General Fund/001 - Real Property/Assessment Files/Fiscal 2023/9. November FY 2023.xlsx",
+                           sheet = "TAB_REALPROP_11072022")
 )
 
 data <- raw %>%
-  map(select, BLOCKLOT,
-      WARD,
-      SECTION,
-      CITYCRED,
-      STATCRED,
-      CCREDAMT,
-      SCREDAMT,
+  map(select, PIN,
+      PINRELATE,
+      BLOCKLOT,
+      BLOCK,
+      LOT,
       PERMHOME,
-      ASSESGRP,
-      EXMPLAND,
-      EXMPIMPR,
       FULLCASH,
-      EXMPTYPE,
-      EXMPCODE,
       USEGROUP,
       ARTAXBAS,
-      SALEPRIC,
+      DISTSWCH,
+      DIST_ID,
+      STATETAX,
       CITY_TAX,
-      AR_OWNER,
       SALEDATE,
-      YEAR_BUILD,
-      OWNER_1,
-      FULLADDR,
-      NEIGHBOR) %>%
-  map(filter, !is.na(BlOCK))
+      OWNER_1) %>%
+  map(filter, !is.na(PIN))
 
-joined <- data$jul %>%
-  full_join(data$nov, by = c("BLOCKLOT", "FULLADDR"),
-            suffix = c(" Jul", " Nov")) %>%
-  mutate_at(vars(c("USEGROUP Jul", "USEGROUP Nov")), str_trim) %>%
-  filter(`ARTAXBAS Jul` != `ARTAXBAS Nov` |
-           ((`USEGROUP Jul` != `USEGROUP Nov`) & (`USEGROUP Jul` == "E" | `USEGROUP Nov` == "E"))) %>%
-  export_excel("Assess Change", file.name = "Assess Change FY23 Jul to Nov.xlsx", "new")
+df = comparedf(data$jul, data$nov, by = "PIN")
+summary = summary(df)
+
+table = summary$diffs.table  
+
+
+result = table %>% filter(values.x != values.y | var.x != var.y)
+
+pivot <- table %>% pivot_wider(id_cols = `PIN`, names_from = `var.x`, values_from = c(values.x, values.y))
+
+col_order <- c()
+
+output <- pivot %>%
+  select(col_order) %>%
+  arrange(`Job Number`) %>%
+  rename_with(.cols = starts_with("values.x"), ~ gsub("values.x", "FY24 CLS", x = .x)) %>%
+  rename_with(.cols = starts_with("values.y"), ~ gsub("values.y", "FY24 Prop", x= .x))
+
+# joined <- data$jul %>%
+#   full_join(data$nov, by = c("BLOCKLOT", "FULLADDR"),
+#             suffix = c(" Jul", " Nov")) %>%
+#   mutate_at(vars(c("USEGROUP Jul", "USEGROUP Nov")), str_trim) %>%
+#   filter(`ARTAXBAS Jul` != `ARTAXBAS Nov` |
+#            ((`USEGROUP Jul` != `USEGROUP Nov`) & (`USEGROUP Jul` == "E" | `USEGROUP Nov` == "E"))) %>%
+#   export_excel("Assess Change", file.name = "Assess Change FY23 Jul to Nov.xlsx", "new")
 
 # rename(`CCREDAMT Dec` = CCREDAMT, `ARTAXBAS Dec` = ARTAXBAS,
 #        `CITY_TAX Dec` = CITY_TAX, `SALEDATE Dec` = `SALEDATE`) %>%

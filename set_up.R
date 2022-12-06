@@ -34,7 +34,7 @@ library(random)
 library(stringr)
 library(stringi)
 library(arsenal)
-library(dataCompareR)
+# library(dataCompareR)
 library(devtools)
 library(scales)
 # install_git('https://github.com/capitalone/dataCompareR.git', branch = 'master',
