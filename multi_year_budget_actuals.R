@@ -16,8 +16,8 @@ params <- list(
   # update RDS files from latest database pulls (TRUE), or just grab the RDS files as is? (FALSE)
   get_new_data = TRUE,
   # most up-to-date line item and position files for planning year
-  line.item = "G:/Fiscal Years/Fiscal 2024/Planning Year/2. Prop/1. Line Item Reports/line_items_2022-11-30.xlsx",
-  position = "G:/Fiscal Years/Fiscal 2024/Planning Year/2. Prop/2. Position Reports/PositionsSalariesOpcs_2022-11-30.xlsx",
+  line.item = "G:/Fiscal Years/Fiscal 2024/Planning Year/2. Prop/1. Line Item Reports/line_items_2023-01-25.xlsx",
+  position = "G:/Fiscal Years/Fiscal 2024/Planning Year/2. Prop/2. Position Reports/PositionsSalariesOpcs_2023-01-25.xlsx",
   # leave revenue file blank if not yet available; script will then just pull in last FY's data
   revenue = "G:/BBMR - Revenue Team/1. Fiscal Years/Fiscal 2023/Planning Year/Budget Publication/3. FY 2023 - Budget Publication - SOTA.xlsx"
 )
@@ -33,7 +33,7 @@ set_cols <- function() {
     projection = sym(paste0("FY", params$fy - 1, " Budget")),
     prior = sym(paste0("FY", params$fy - 2, " Actual")),
     # names for the cols containing budget info
-    fy = c(paste0("FY", (params$fy - 7):(params$fy - 2), " Actual"),
+    fy = c(paste0("FY", (params$fy - 10):(params$fy - 2), " Actual"),
            paste0("FY", (params$fy - 1):params$fy,
                   c(" Adopted", paste0(" ", params$phase))))
   )
@@ -246,3 +246,13 @@ output <- expend$historical %>%
   
 
 export_excel(output, "FY12-FY24 Prop", "G:/Fiscal Years/Historical Data/Multi-Year Data/Multi-Year Budget v Actuals_FY12-FY24 Prop.xlsx")
+
+##GF only and by agency
+
+gf = output %>%
+  filter(`Fund ID` == "1001") %>%
+  group_by(`Agency ID`, `Agency Name`) %>%
+  summarise_if(is.numeric, sum, na.rm = TRUE)
+
+export_excel(gf, "FY12-FY24 GF Only", "G:/Fiscal Years/Historical Data/Multi-Year Data/Multi-Year GF Agency Budget v Actuals_FY12-FY24 Prop.xlsx")
+

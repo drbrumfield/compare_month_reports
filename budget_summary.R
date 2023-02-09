@@ -1,5 +1,7 @@
-##current line items
-input <-import("G:/Fiscal Years/Fiscal 2024/Planning Year/2. Prop/1. Line Item Reports/line_items_2022-11-30.xlsx", which = "Details")
+##//BUDGET SUMMARY FOR SERVICE PROPOSALS//
+
+##current line items ======
+input <-import("G:/Fiscal Years/Fiscal 2024/Planning Year/2. Prop/1. Line Item Reports/line_items_2023-01-25.xlsx", which = "Details")
 
 data <- input %>%
   mutate(Fund = case_when(`Fund ID` == 1001 ~ "General Fund",
@@ -26,7 +28,7 @@ output <- data %>% left_join(fy22, by = "Program ID") %>%
   relocate(`FY22 General Fund`, .after = `Program ID`) %>%
   relocate(`FY22 All Other Funds`, .after = `FY22 General Fund`)
 
-##positions!!
+##positions!! =======
 positions <- readRDS("G:/Budget Publications/automation/0_data_prep/outputs/fy24_prop/positions.Rds")
 
 positions$cls <- readRDS("G:/Budget Publications/automation/0_data_prep/outputs/fy24_cls/positions.Rds") %>%
@@ -47,5 +49,5 @@ positions <- positions$planning %>%
 
   
 
-##save for scorecard proposals
+##save for scorecard proposals =======
 saveRDS(output, file = "G:/Analyst Folders/Sara Brumfield/planning_year/2b_proposal_compilation/inputs/budget_summary.Rds")

@@ -1,4 +1,5 @@
-input <- import("inputs/all positions_2022-11.xlsx") 
+##from BBMR Position File in Workday
+input <- import("inputs/all positions 2022.xlsx", skip = 8) 
 # 
 # filled <- input %>%
 #   rename(`Total Positions`=Count, Agency=`CF-agency`) %>%
@@ -31,9 +32,9 @@ closed <- df %>%
 filled <- df %>%
   filter(`Position Staffing Status` == "Filled")
 
-total <- df %>%
-  group_by(Agency) %>%
-  summarise(`Total Positions` = n())
+# total <- df %>%
+#   group_by(Agency) %>%
+#   summarise(`Total Positions` = n())
 
 check <- df %>%
   group_by(Agency, `Position Staffing Status`) %>%
@@ -62,7 +63,8 @@ trend <- pivot %>%
          Aug = sum(Jul, Filled_2022_8, na.rm = TRUE),
          Sep = sum(Aug, Filled_2022_9, na.rm = TRUE),
          Oct = sum(Sep, Filled_2022_10, na.rm = TRUE),
-         Nov = sum(Oct, Filled_2022_11, na.rm = TRUE)) %>%
+         Nov = sum(Oct, Filled_2022_11, na.rm = TRUE),
+         Dec = sum(Oct, Filled_2022_12, na.rm = TRUE)) %>%
   select(-starts_with("Filled"))
 
 agency <- trend %>%
@@ -74,8 +76,11 @@ agency <- trend %>%
 output <- agency %>% full_join(vacant, by = "Agency") %>%
   full_join(frozen, by = "Agency") %>%
   full_join(closed, by = "Agency") %>%
-  full_join(total, by = "Agency") %>%
+  # full_join(total, by = "Agency") %>%
   filter(!is.na(Agency)) %>%
-  replace(is.na(.), 0)
+  replace(is.na(.), 0) %>%
+  rowwise() %>%
+  mutate(`Total Positions` = sum(c_across(`Dec`:`Total Closed Positions`), na.rm = TRUE)) %>%
+  ungroup()
 
-export_excel(output, "Position Trends as of Nov", "outputs/Position Trends_2022-11.xlsx")
+export_excel(output, "As of Dec 31 2022", "outputs/Position Trends 2022.xlsx")

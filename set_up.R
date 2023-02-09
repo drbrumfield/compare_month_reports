@@ -1,19 +1,19 @@
 params <- list(
   #set start and end points
   #CLS, Proposal, TLS, FinRec, BoE, Cou, Adopted
-  start_phase = "CLS",
-  start_yr = 24,
-  end_phase = "Prop",
-  end_yr = 24,
+  start_phase = "Prop",
+  start_yr = 24, ##FY
+  end_phase = "TLS",
+  end_yr = 24, ##FY
   fy = 24,
   # most up-to-date line item and position files for planning year
   # verify with William for most current version
-  line.start = "G:/Fiscal Years/Fiscal 2023/Projections Year/1. July 1 Prepwork/Appropriation File/Fiscal 2023 Appropriation File_Change_Tables.xlsx",
-  line.end = "G:/Fiscal Years/Fiscal 2024/Planning Year/1. CLS/1. Line Item Reports/line_items_2022-11-2_CLS FINAL AFTER BPFS.xlsx",
-  position.start = "G:/Fiscal Years/Fiscal 2024/Planning Year/2. Prop/2. Position Reports/PositionsSalariesOPCs_2022-11-16.xlsx",
-  position.end = "G:/Fiscal Years/Fiscal 2024/Planning Year/1. CLS/2. Position Reports/PositionsSalariesOpcs_2022-11-2b_CLS FINAL AFTER BPFS.xlsx",
+  line.start = "G:/Fiscal Years/Fiscal 2024/Planning Year/2. Prop/1. Line Item Reports/line_items_2023-02-03_Prop.xlsx",
+  line.end = "G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/1. Line Item Reports/line_items_2023-02-03_TLS.xlsx",
+  position.start = "G:/Fiscal Years/Fiscal 2024/Planning Year/2. Prop/2. Position Reports/PositionsSalariesOpcs_2023-02-03_Prop.xlsx",
+  position.end = "G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/PositionsSalariesOpcs_2023-02-03_TLS.xlsx",
   # leave revenue file blank if not yet available; script will then just pull in last FY's data
-  rev.start.month = 8,
+  rev.start.month = 8, ##calendar months
   rev.end.month = 9,
   tax.start = NA,
   tax.end = NA
@@ -56,7 +56,7 @@ options("openxlsx.numFmt" = "#,##0;(#,##0)")
 ##read in data =====================
 cols <- c(paste0("FY", params$start_yr, " ", params$start_phase), 
           paste0("FY", params$end_yr, " ", params$end_phase), 
-          paste0("FY", params$start_yr, " COU"),
+          paste0("FY", params$start_yr-1, " Adopted"),
           paste0("FY", params$start_yr, " All Positions File"))
 
 line_item_start <- readxl::read_excel(path = params$line.start, sheet = "Details") %>%
@@ -68,6 +68,7 @@ line_item_end <- readxl::read_excel(path = params$line.end, sheet = "Details") %
          `Service Name` = `Program Name`)
 
 position_start <- readxl::read_excel(path = params$position.start, sheet = "PositionsSalariesOPCs") %>%
+  rename(`Salary` = `SALARY`) %>%
   # rename(Status = `T CODE`) %>%
   # select(`JOB NUMBER`:`TOTAL COST`, -`OSO 207`, -`FUNDING`, -`PROJECTED SALARY`) %>%
   select(`JOB NUMBER`:`TOTAL COST`, -ADOPTED, -`OSO 101`, -`OSO 103`, -`OSO 161`, -`OSO 162`) %>%
@@ -79,7 +80,7 @@ position_start <- readxl::read_excel(path = params$position.start, sheet = "Posi
 colnames(position_start) = rename_upper_to_title(position_start)
 
 position_end <- readxl::read_excel(path = params$position.end, sheet = "PositionsSalariesOPCs") %>%
-  # rename(`SI ID Name` = `SI NAME`) %>%
+  rename(`Salary` = `SALARY`) %>%
   select(`JOB NUMBER`:`TOTAL COST`, -ADOPTED, -`OSO 101`, -`OSO 103`, -`OSO 161`, -`OSO 162`) %>%
   mutate(GRADE = str_remove(as.numeric(GRADE),  "^0+")) %>%
   mutate_at(vars(ends_with("ID")), as.numeric) %>%
