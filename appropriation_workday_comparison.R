@@ -74,9 +74,9 @@ dupes = data[duplicated(data$`Position ID`),]
 
 export_excel(data, "Comparison", "outputs/FY23 Appropriated Positions - FY23 Budget Load Comparison.xlsx")
 
-##add in classification ID
-class <- comparison %>% select(`Position ID`, Class_ID_Approp, Class_ID_WD)%>% mutate(`Position ID` = as.numeric(`Position ID`))
-df <- import("outputs/FY23 Appropriated Positions - Workday Comparison.xlsx", which = "Comparison") %>%
-  left_join(class, by = "Position ID")
-
-export_excel(df, "Comparison", "outputs/FY23 Appropriated Positions - Workday Comparison.xlsx")
+# ##add in classification ID
+# class <- comparison %>% select(`Position ID`, Class_ID_Approp, Class_ID_WD)%>% mutate(`Position ID` = as.numeric(`Position ID`))
+# df <- import("outputs/FY23 Appropriated Positions - Workday Comparison.xlsx", which = "Comparison") %>%
+#   left_join(class, by = "Position ID")
+# 
+# export_excel(df, "Comparison", "outputs/FY23 Appropriated Positions - Workday Comparison.xlsx")
