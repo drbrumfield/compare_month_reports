@@ -11,8 +11,8 @@ params = {"start_phase" : "Prop",
 "end_yr" : 24,
 "fy" : 24,
 #most up-to-date position files for planning year
-"position.start" : "G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/PositionsSalariesOpcs_2023-02-03_TLS.xlsx",
-"position.end" : "G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/PositionsSalariesOpcs_2023-02-14_TLS_After_Positions_Move.xlsx"}
+"position.start" : "G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/PositionsSalariesOpcs_2023-02-28.xlsx",
+"position.end" : "G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/PositionsSalariesOpcs_2023-03-01.xlsx"}
 
 ##positions =======
 
@@ -25,14 +25,14 @@ position_start = position_start.infer_objects()
 
 
 # applying whitespace_remover function on dataframe
-# def whitespace_remover(df):
-  # for i in df.columns:
-  #   if df[i].dtype == "object":
-  #     df[i] = df[i].astype(str).apply(lambda x: x.strip())
-  #   else:
-  #     pass
-  # return df
-# whitespace_remover(position_start)
+def whitespace_remover(df):
+  for i in df.columns:
+    if df[i].dtype == "object":
+      df[i] = df[i].astype(str).apply(lambda x: x.strip())
+    else:
+      pass
+  return df
+whitespace_remover(position_start)
 
 position_end = pd.read_excel(params["position.end"], sheet_name = "PositionsSalariesOPCs")
 position_end = position_end.drop_duplicates(subset = "JOB NUMBER", keep = "last")
@@ -40,8 +40,9 @@ position_end = position_end.drop(['ADOPTED', 'OSO 101', 'OSO 103', 'OSO 161', 'O
 position_end = position_end.rename(columns = {"SI NAME":"SI ID NAME", "Salary":"SALARY"})
 position_end = position_end.loc[:, "JOB NUMBER":"TOTAL COST"]
 position_end = position_end.infer_objects()
+# position_end["GRADE"] = position_end["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
 
-# whitespace_remover(position_end)
+whitespace_remover(position_end)
 
 ##add empty dummy rows to get same # of rows ======
 # x = len(position_start)
@@ -62,7 +63,7 @@ position_end = position_end.infer_objects()
 
 ##compare ================= 
 cols = list(position_start.columns)
-result = position_start.merge(position_end, how = "outer", indicator = True, on = cols, suffixes = ("_TLSBefore", "_TLSAfter"))
+result = position_start.merge(position_end, how = "outer", indicator = True, on = cols, suffixes = ("_TLS0228", "_TLS0301"))
 
 output = result.loc[lambda x : x['_merge'] != 'both']
 
@@ -81,5 +82,5 @@ test = no_phase.loc[no_phase.duplicated()==True]
 
 
 ##export ============
-output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/Position Changes FY24 TLSBefore-FY24 TLSAfter_0214.xlsx", sheet_name = "TLS to TLS", index = False, freeze_panes = (1,2))
+output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/Position Changes FY24 TLS 0228-FY24 TLS 0301.xlsx", sheet_name = "TLS to TLS", index = False, freeze_panes = (1,2))
 
