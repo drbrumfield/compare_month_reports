@@ -5,24 +5,26 @@ from pandas.testing import assert_frame_equal
 
 #set start and end points
 #CLS, Proposal, TLS, FinRec, BoE, Cou, Adopted
-params = {"start_phase" : "Prop",
-"start_yr" : 23,
+#All positions or OPCs
+params = {"type" : "All",
+"start_date" : "03-06",
+"start_phase" : "Prop",
+"start_yr" : "24",
+"end_date" : "03-07",
 "end_phase" : "TLS",
-"end_yr" : 24,
-"fy" : 24,
+"end_yr" : "24",
+"fy" : "24",
 #most up-to-date position files for planning year
-"position.start" : "G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/PositionsSalariesOpcs_2023-02-28.xlsx",
-"position.end" : "G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/PositionsSalariesOpcs_2023-03-01.xlsx"}
+"position.start" : "G:/Fiscal Years/Fiscal 2024/Planning Year/",
+# "position.start" : "G:/Analyst Folders/Sara Brumfield/monthly_reports/compare_month_reports/inputs/AllPositions_2023-03-06_Prop_New.xlsx",
+"position.end" : "G:/Fiscal Years/Fiscal 2024/Planning Year/"}
 
-##positions =======
-
-position_start = pd.read_excel(params["position.start"], sheet_name = "PositionsSalariesOPCs")
-position_start = position_start.drop_duplicates(subset = "JOB NUMBER", keep = "last")
-position_start = position_start.drop(['ADOPTED', 'OSO 101', 'OSO 103', 'OSO 161', 'OSO 162'], axis = 1)
-position_start = position_start.rename(columns = {"SI NAME":"SI ID NAME", "Salary":"SALARY"})
-position_start = position_start.loc[:, "JOB NUMBER":"TOTAL COST"]
-position_start = position_start.infer_objects()
-
+phases = {"CLS" : "1. CLS",
+"Prop" : "2. Prop",
+"TLS" : "3. TLS",
+"FinRec" : "4. FinRec",
+"BoE" : "5. BoE",
+"Cou" : "6. Council"}
 
 # applying whitespace_remover function on dataframe
 def whitespace_remover(df):
@@ -32,17 +34,48 @@ def whitespace_remover(df):
     else:
       pass
   return df
-whitespace_remover(position_start)
 
-position_end = pd.read_excel(params["position.end"], sheet_name = "PositionsSalariesOPCs")
-position_end = position_end.drop_duplicates(subset = "JOB NUMBER", keep = "last")
-position_end = position_end.drop(['ADOPTED', 'OSO 101', 'OSO 103', 'OSO 161', 'OSO 162'], axis = 1)
-position_end = position_end.rename(columns = {"SI NAME":"SI ID NAME", "Salary":"SALARY"})
-position_end = position_end.loc[:, "JOB NUMBER":"TOTAL COST"]
-position_end = position_end.infer_objects()
-# position_end["GRADE"] = position_end["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
+##positions =======
+if params.get("type") == "All":
+  position_start = pd.read_excel(params["position.start"] + phases.get(params.get("start_phase")) + "/2. Position Reports/AllPositions_2023-" + params.get("start_date") + ".xlsx", sheet_name = "All_Positions")
+  position_start = position_start.drop_duplicates(subset = "JOB NUMBER", keep = "last")
+  position_start = position_start.drop(['ADOPTED'], axis = 1)
+  position_start = position_start.rename(columns = {"SI NAME":"SI ID NAME", "Salary":"SALARY"})
+  position_start = position_start.infer_objects()
+  position_start["GRADE"] = position_start["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
+  whitespace_remover(position_start)
+  
+else:
+  position_start = pd.read_excel(params["position.start"] + phases.get(params.get("start_phase")) + "/2. Position Reports/PositionsSalariesOPCs_2023-" + params.get("start_date") + ".xlsx", sheet_name = "PositionsSalariesOPCs")
+  position_start = position_start.drop_duplicates(subset = "JOB NUMBER", keep = "last")
+  position_start = position_start.drop(['ADOPTED', 'OSO 101', 'OSO 103', 'OSO 161', 'OSO 162'], axis = 1)
+  position_start = position_start.rename(columns = {"SI NAME":"SI ID NAME", "Salary":"SALARY"})
+  position_start = position_start.loc[:, "JOB NUMBER":"TOTAL COST"]
+  position_start = position_start.infer_objects()
+  # position_start = position_start[position_start["Phase"]==params.get("start_phase")]
+  # position_start = position_start.drop(["Phase"], axis = 1)
+  position_start["GRADE"] = position_start["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
+  whitespace_remover(position_start)
 
-whitespace_remover(position_end)
+
+if params.get("type") == "All":
+  position_end = pd.read_excel(params["position.end"]  + phases.get(params.get("end_phase")) + "/2. Position Reports/AllPositions_2023-" + params.get("end_date") + ".xlsx", sheet_name = "All_Positions")
+  position_end = position_end.drop_duplicates(subset = "JOB NUMBER", keep = "last")
+  position_end = position_end.drop(['ADOPTED'], axis = 1)
+  position_end = position_end.rename(columns = {"SI NAME":"SI ID NAME", "Salary":"SALARY"})
+  position_end = position_end.infer_objects()
+  position_end["GRADE"] = position_end["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
+  whitespace_remover(position_end)
+  
+else:
+  position_end = pd.read_excel(params["position.end"]  + phases.get(params.get("end_phase")) + "/2. Position Reports/PositionsSalariesOPCs_2023-" + params.get("end_date") + ".xlsx", sheet_name = "PositionsSalariesOPCs")
+  position_end = position_end.drop_duplicates(subset = "JOB NUMBER", keep = "last")
+  position_end = position_end.drop(['ADOPTED', 'OSO 101', 'OSO 103', 'OSO 161', 'OSO 162'], axis = 1)
+  position_end = position_end.rename(columns = {"SI NAME":"SI ID NAME", "Salary":"SALARY"})
+  position_end = position_end.loc[:, "JOB NUMBER":"TOTAL COST"]
+  position_end = position_end.infer_objects()
+  position_end["GRADE"] = position_end["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
+  whitespace_remover(position_end)
 
 ##add empty dummy rows to get same # of rows ======
 # x = len(position_start)
@@ -63,11 +96,14 @@ whitespace_remover(position_end)
 
 ##compare ================= 
 cols = list(position_start.columns)
-result = position_start.merge(position_end, how = "outer", indicator = True, on = cols, suffixes = ("_TLS0228", "_TLS0301"))
+result = position_start.merge(position_end, how = "outer", indicator = True, on = cols, suffixes = (params.get("start_phase"), params.get("end_phase")))
 
 output = result.loc[lambda x : x['_merge'] != 'both']
 
-output["Phase"] = output["_merge"].replace({"left_only":"TLSBefore", "right_only":"TLSAfter"})
+if params.get("start_phase") == params.get("end_phase"):
+  output["Phase"] = output["_merge"].replace({"left_only":params.get("start_phase") + params.get("start_date"), "right_only":params.get("end_phase") + params.get("end_date")})
+else:
+  output["Phase"] = output["_merge"].replace({"left_only":params.get("start_phase"), "right_only":params.get("end_phase")})
 
 output = output.drop(labels = ["_merge"], axis = 1)
 
@@ -82,5 +118,8 @@ test = no_phase.loc[no_phase.duplicated()==True]
 
 
 ##export ============
-output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/Position Changes FY24 TLS 0228-FY24 TLS 0301.xlsx", sheet_name = "TLS to TLS", index = False, freeze_panes = (1,2))
+if params.get("start_phase") == params.get("end_phase"):
+  output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + params.get("start_date") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + params.get("end_date") + ".xlsx", sheet_name = params.get("start_phase") + params.get("start_date") + " - " + params.get("end_phase") + params.get("end_date"), index = False, freeze_panes = (1,19))
+else:
+  output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + ".xlsx", sheet_name = params.get("start_phase") + " - " + params.get("end_phase"), index = False, freeze_panes = (1,2))
 
