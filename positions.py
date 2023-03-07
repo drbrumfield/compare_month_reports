@@ -7,8 +7,8 @@ from pandas.testing import assert_frame_equal
 #CLS, Proposal, TLS, FinRec, BoE, Cou, Adopted
 #All positions or OPCs
 params = {"type" : "All",
-"start_date" : "03-06",
-"start_phase" : "Prop",
+"start_date" : "03-02",
+"start_phase" : "TLS",
 "start_yr" : "24",
 "end_date" : "03-07",
 "end_phase" : "TLS",
@@ -37,7 +37,7 @@ def whitespace_remover(df):
 
 ##positions =======
 if params.get("type") == "All":
-  position_start = pd.read_excel(params["position.start"] + phases.get(params.get("start_phase")) + "/2. Position Reports/AllPositions_2023-" + params.get("start_date") + ".xlsx", sheet_name = "All_Positions")
+  position_start = pd.read_excel(params["position.start"] + phases.get(params.get("start_phase")) + "/2. Position Reports/AllPositions_2023-" + params.get("start_date") + ".xlsx", sheet_name = "AllPositions")
   position_start = position_start.drop_duplicates(subset = "JOB NUMBER", keep = "last")
   position_start = position_start.drop(['ADOPTED'], axis = 1)
   position_start = position_start.rename(columns = {"SI NAME":"SI ID NAME", "Salary":"SALARY"})
@@ -119,7 +119,13 @@ test = no_phase.loc[no_phase.duplicated()==True]
 
 ##export ============
 if params.get("start_phase") == params.get("end_phase"):
-  output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + params.get("start_date") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + params.get("end_date") + ".xlsx", sheet_name = params.get("start_phase") + params.get("start_date") + " - " + params.get("end_phase") + params.get("end_date"), index = False, freeze_panes = (1,19))
+  if params.get("type") == "All":
+    output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/All Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + params.get("start_date") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + params.get("end_date") + ".xlsx", sheet_name = params.get("start_phase") + params.get("start_date") + " - " + params.get("end_phase") + params.get("end_date"), index = False)
+  else:
+    output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + params.get("start_date") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + params.get("end_date") + ".xlsx", sheet_name = params.get("start_phase") + params.get("start_date") + " - " + params.get("end_phase") + params.get("end_date"), index = False)
 else:
-  output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + ".xlsx", sheet_name = params.get("start_phase") + " - " + params.get("end_phase"), index = False, freeze_panes = (1,2))
+  if params.get("type") == "All":
+    output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/All Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + ".xlsx", sheet_name = params.get("start_phase") + " - " + params.get("end_phase"), index = False)
+  else:
+    output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + ".xlsx", sheet_name = params.get("start_phase") + " - " + params.get("end_phase"), index = False)
 
