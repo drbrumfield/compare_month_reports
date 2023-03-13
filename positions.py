@@ -7,16 +7,16 @@ from pandas.testing import assert_frame_equal
 #CLS, Proposal, TLS, FinRec, BoE, Cou, Adopted
 #All positions or OPCs
 params = {"type" : "All",
-"start_date" : "03-02",
+"tab" : "All_Positions",
+"start_date" : "03-10",
 "start_phase" : "TLS",
 "start_yr" : "24",
-"end_date" : "03-07",
+"end_date" : "03-13",
 "end_phase" : "TLS",
 "end_yr" : "24",
 "fy" : "24",
 #most up-to-date position files for planning year
 "position.start" : "G:/Fiscal Years/Fiscal 2024/Planning Year/",
-# "position.start" : "G:/Analyst Folders/Sara Brumfield/monthly_reports/compare_month_reports/inputs/AllPositions_2023-03-06_Prop_New.xlsx",
 "position.end" : "G:/Fiscal Years/Fiscal 2024/Planning Year/"}
 
 phases = {"CLS" : "1. CLS",
@@ -36,8 +36,9 @@ def whitespace_remover(df):
   return df
 
 ##positions =======
+###start
 if params.get("type") == "All":
-  position_start = pd.read_excel(params["position.start"] + phases.get(params.get("start_phase")) + "/2. Position Reports/AllPositions_2023-" + params.get("start_date") + ".xlsx", sheet_name = "AllPositions")
+  position_start = pd.read_excel(params["position.start"] + phases.get(params.get("start_phase")) + "/2. Position Reports/AllPositions_2023-" + params.get("start_date") + ".xlsx", sheet_name = params.get("tab"))
   position_start = position_start.drop_duplicates(subset = "JOB NUMBER", keep = "last")
   position_start = position_start.drop(['ADOPTED'], axis = 1)
   position_start = position_start.rename(columns = {"SI NAME":"SI ID NAME", "Salary":"SALARY"})
@@ -46,7 +47,7 @@ if params.get("type") == "All":
   whitespace_remover(position_start)
   
 else:
-  position_start = pd.read_excel(params["position.start"] + phases.get(params.get("start_phase")) + "/2. Position Reports/PositionsSalariesOPCs_2023-" + params.get("start_date") + ".xlsx", sheet_name = "PositionsSalariesOPCs")
+  position_start = pd.read_excel(params["position.start"] + phases.get(params.get("start_phase")) + "/2. Position Reports/PositionsSalariesOPCs_2023-" + params.get("start_date") + ".xlsx", sheet_name = params.get("tab"))
   position_start = position_start.drop_duplicates(subset = "JOB NUMBER", keep = "last")
   position_start = position_start.drop(['ADOPTED', 'OSO 101', 'OSO 103', 'OSO 161', 'OSO 162'], axis = 1)
   position_start = position_start.rename(columns = {"SI NAME":"SI ID NAME", "Salary":"SALARY"})
@@ -57,9 +58,9 @@ else:
   position_start["GRADE"] = position_start["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
   whitespace_remover(position_start)
 
-
+###end
 if params.get("type") == "All":
-  position_end = pd.read_excel(params["position.end"]  + phases.get(params.get("end_phase")) + "/2. Position Reports/AllPositions_2023-" + params.get("end_date") + ".xlsx", sheet_name = "All_Positions")
+  position_end = pd.read_excel(params["position.end"]  + phases.get(params.get("end_phase")) + "/2. Position Reports/AllPositions_2023-" + params.get("end_date") + ".xlsx", sheet_name = params.get("tab"))
   position_end = position_end.drop_duplicates(subset = "JOB NUMBER", keep = "last")
   position_end = position_end.drop(['ADOPTED'], axis = 1)
   position_end = position_end.rename(columns = {"SI NAME":"SI ID NAME", "Salary":"SALARY"})
@@ -68,7 +69,7 @@ if params.get("type") == "All":
   whitespace_remover(position_end)
   
 else:
-  position_end = pd.read_excel(params["position.end"]  + phases.get(params.get("end_phase")) + "/2. Position Reports/PositionsSalariesOPCs_2023-" + params.get("end_date") + ".xlsx", sheet_name = "PositionsSalariesOPCs")
+  position_end = pd.read_excel(params["position.end"]  + phases.get(params.get("end_phase")) + "/2. Position Reports/PositionsSalariesOPCs_2023-" + params.get("end_date") + ".xlsx", sheet_name = params.get("tab"))
   position_end = position_end.drop_duplicates(subset = "JOB NUMBER", keep = "last")
   position_end = position_end.drop(['ADOPTED', 'OSO 101', 'OSO 103', 'OSO 161', 'OSO 162'], axis = 1)
   position_end = position_end.rename(columns = {"SI NAME":"SI ID NAME", "Salary":"SALARY"})
@@ -113,7 +114,7 @@ output = output.sort_values(by = ["JOB NUMBER"])
 
 #duplicate check
 no_phase = output.drop(columns = ["Phase"])
-test = no_phase.drop_duplicates(subset = ['JOB NUMBER', 'CLASSIFICATION ID', 'CLASSIFICATION NAME', 'GRADE', 'UNION ID', 'UNION NAME', 'AGENCY ID', 'AGENCY NAME', 'PROGRAM ID', 'PROGRAM NAME', 'ACTIVITY ID', 'ACTIVITY NAME', 'FUND ID', 'FUND NAME', 'DETAILED FUND ID', 'DETAILED FUND NAME', 'SI ID', 'SI ID NAME', 'STATUS', 'SALARY', 'OSO 201', 'OSO 202', 'OSO 203', 'OSO 205', 'OSO 210', 'OSO 212', 'OSO 213', 'OSO 231', 'OSO 233', 'OSO 235', 'TOTAL COST'], keep = False, inplace = True)
+# test = no_phase.drop_duplicates(subset = ['JOB NUMBER', 'CLASSIFICATION ID', 'CLASSIFICATION NAME', 'GRADE', 'UNION ID', 'UNION NAME', 'AGENCY ID', 'AGENCY NAME', 'PROGRAM ID', 'PROGRAM NAME', 'ACTIVITY ID', 'ACTIVITY NAME', 'FUND ID', 'FUND NAME', 'DETAILED FUND ID', 'DETAILED FUND NAME', 'SI ID', 'SI ID NAME', 'STATUS', 'SALARY', 'OSO 201', 'OSO 202', 'OSO 203', 'OSO 205', 'OSO 210', 'OSO 212', 'OSO 213', 'OSO 231', 'OSO 233', 'OSO 235', 'TOTAL COST'], keep = False, inplace = True)
 test = no_phase.loc[no_phase.duplicated()==True]
 
 
