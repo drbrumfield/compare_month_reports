@@ -5,13 +5,14 @@ from pandas.testing import assert_frame_equal
 
 #set start and end points
 #CLS, Proposal, TLS, FinRec, BoE, Cou, Adopted
-params = {"start_date" : "03-10",
+params = {"start_date" : "03-16",
 "start_phase" : "TLS",
 "start_yr" : "24",
-"end_date" : "03-13",
+"end_date" : "03-17",
 "end_phase" : "TLS",
 "end_yr" : "24",
 "fy" : "24",
+"yr" : "23", #calendar year for file names
 #most up-to-date line item or planning year
 #verify with William for most current version
 "line.start" : "G:/Fiscal Years/Fiscal 2024/Planning Year/",
@@ -26,11 +27,17 @@ phases = {"CLS" : "1. CLS",
 
 ##import ====
 line_start = pd.read_excel(params["line.start"] + phases.get(params.get("start_phase")) + "/1. Line Item Reports/line_items_2023-" + params.get("start_date") + ".xlsx", sheet_name = "Details")
+# line_start = line_start.drop(["FY24 TLS"], axis = 1)
 
 line_end = pd.read_excel(params["line.end"] + phases.get(params.get("end_phase")) + "/1. Line Item Reports/line_items_2023-"+ params.get("end_date") + ".xlsx", sheet_name = "Details")
 ##if different phases
-# line_end = line_end.rename(columns = {"FY24 PROP":"FY24 Proposal"})
+# line_end = line_end.rename(columns = {"FY24 Proposal":"FY24 PROP"})
 # line_end = line_end.drop(["FY24 TLS"], axis = 1)
+
+try:
+  assert line_start.columns == line_end.columns
+except AssertionError as msg:
+  print(msg)
 
 ##compare ================= 
 cols = list(line_start.columns)
@@ -56,6 +63,6 @@ print("TLS Starting Total: ", line_start["FY24 TLS"].sum(), "TLS Ending Total: "
 
 ##export =======
 if params.get("start_phase") == params.get("end_phase"):
-  output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/1. Line Item Reports/Line Item Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + " " + params.get("start_date") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + " " + params.get("end_date") + ".xlsx", sheet_name = params.get("start_phase") + params.get("start_date") + " - " + params.get("end_phase") + params.get("end_date"), index = False)
+  output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/" + phases.get(params.get("end_phase")) + "/1. Line Item Reports/Line Item Change Reports/Line Item Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + " " + params.get("start_date") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + " " + params.get("end_date") + ".xlsx", sheet_name = params.get("start_phase") + params.get("start_date") + " - " + params.get("end_phase") + params.get("end_date"), index = False)
 else:
-  output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/1. Line Item Reports/Line Item Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + ".xlsx", sheet_name = params.get("start_phase") + " - " + params.get("end_phase")," index = False)
+  output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/" + phases.get(params.get("end_phase")) + "/1. Line Item Reports/Line Item Change Reports/Line Item Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + ".xlsx", sheet_name = params.get("start_phase") + " - " + params.get("end_phase")," index = False)

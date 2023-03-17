@@ -7,14 +7,15 @@ from pandas.testing import assert_frame_equal
 #CLS, Proposal, TLS, FinRec, BoE, Cou, Adopted
 #All positions or OPCs
 params = {"type" : "All",
-"tab" : "All_Positions",
-"start_date" : "03-10",
+"tab" : "AllPositions",
+"start_date" : "03-16_TLS",
 "start_phase" : "TLS",
 "start_yr" : "24",
-"end_date" : "03-13",
+"end_date" : "03-17",
 "end_phase" : "TLS",
 "end_yr" : "24",
 "fy" : "24",
+"yr" : "23", #calendar year for file names
 #most up-to-date position files for planning year
 "position.start" : "G:/Fiscal Years/Fiscal 2024/Planning Year/",
 "position.end" : "G:/Fiscal Years/Fiscal 2024/Planning Year/"}
@@ -41,10 +42,12 @@ if params.get("type") == "All":
   position_start = pd.read_excel(params["position.start"] + phases.get(params.get("start_phase")) + "/2. Position Reports/AllPositions_2023-" + params.get("start_date") + ".xlsx", sheet_name = params.get("tab"))
   position_start = position_start.drop_duplicates(subset = "JOB NUMBER", keep = "last")
   position_start = position_start.drop(['ADOPTED'], axis = 1)
-  position_start = position_start.rename(columns = {"SI NAME":"SI ID NAME", "Salary":"SALARY"})
+  position_start.columns = position_start.columns.str.upper()
+  position_start = position_start.rename(columns = {"BUDGETED SALARY ": "BUDGETED SALARY", "PROJECTED SALARY": "SALARY", "DETAILED FUND NAME ": "DETAILED FUND NAME", "JOB  NUMBER": "JOB NUMBER", "SI NAME":"SI ID NAME", "T CODE":"STATUS", "FY24 PROPOSAL" : "BUDGETED SALARY", "PORJECTED SALARY" : "SALARY", "TOTAL BUDGED COST" : "TOTAL COST"})
   position_start = position_start.infer_objects()
   position_start["GRADE"] = position_start["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
   whitespace_remover(position_start)
+
   
 else:
   position_start = pd.read_excel(params["position.start"] + phases.get(params.get("start_phase")) + "/2. Position Reports/PositionsSalariesOPCs_2023-" + params.get("start_date") + ".xlsx", sheet_name = params.get("tab"))
@@ -57,13 +60,16 @@ else:
   # position_start = position_start.drop(["Phase"], axis = 1)
   position_start["GRADE"] = position_start["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
   whitespace_remover(position_start)
+  position_start.columns = position_start.columns.str.upper()
+
 
 ###end
 if params.get("type") == "All":
   position_end = pd.read_excel(params["position.end"]  + phases.get(params.get("end_phase")) + "/2. Position Reports/AllPositions_2023-" + params.get("end_date") + ".xlsx", sheet_name = params.get("tab"))
   position_end = position_end.drop_duplicates(subset = "JOB NUMBER", keep = "last")
   position_end = position_end.drop(['ADOPTED'], axis = 1)
-  position_end = position_end.rename(columns = {"SI NAME":"SI ID NAME", "Salary":"SALARY"})
+  position_end.columns = position_end.columns.str.upper()
+  position_end = position_end.rename(columns = {"BUDGETED SALARY ": "BUDGETED SALARY", "PROJECTED SALARY": "SALARY", "DETAILED FUND NAME ": "DETAILED FUND NAME", "JOB  NUMBER": "JOB NUMBER", "SI NAME":"SI ID NAME", "T CODE":"STATUS", "FY24 PROPOSAL" : "BUDGETED SALARY", "PORJECTED SALARY" : "SALARY", "TOTAL BUDGED COST" : "TOTAL COST"})
   position_end = position_end.infer_objects()
   position_end["GRADE"] = position_end["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
   whitespace_remover(position_end)
@@ -77,6 +83,8 @@ else:
   position_end = position_end.infer_objects()
   position_end["GRADE"] = position_end["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
   whitespace_remover(position_end)
+  position_end.columns = position_end.columns.str.upper()
+
 
 ##add empty dummy rows to get same # of rows ======
 # x = len(position_start)
@@ -117,16 +125,21 @@ no_phase = output.drop(columns = ["Phase"])
 # test = no_phase.drop_duplicates(subset = ['JOB NUMBER', 'CLASSIFICATION ID', 'CLASSIFICATION NAME', 'GRADE', 'UNION ID', 'UNION NAME', 'AGENCY ID', 'AGENCY NAME', 'PROGRAM ID', 'PROGRAM NAME', 'ACTIVITY ID', 'ACTIVITY NAME', 'FUND ID', 'FUND NAME', 'DETAILED FUND ID', 'DETAILED FUND NAME', 'SI ID', 'SI ID NAME', 'STATUS', 'SALARY', 'OSO 201', 'OSO 202', 'OSO 203', 'OSO 205', 'OSO 210', 'OSO 212', 'OSO 213', 'OSO 231', 'OSO 233', 'OSO 235', 'TOTAL COST'], keep = False, inplace = True)
 test = no_phase.loc[no_phase.duplicated()==True]
 
+if len(test) == 0:
+  print("No duplicates found.")
+else:
+  print("Duplicates in data set.")
+
 
 ##export ============
 if params.get("start_phase") == params.get("end_phase"):
   if params.get("type") == "All":
-    output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/All Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + params.get("start_date") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + params.get("end_date") + ".xlsx", sheet_name = params.get("start_phase") + params.get("start_date") + " - " + params.get("end_phase") + params.get("end_date"), index = False)
+    output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/" + phases.get(params.get("end_phase")) + "/2. Position Reports/Position Change Reports/All Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + params.get("start_date") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + params.get("end_date") + ".xlsx", sheet_name = params.get("start_phase") + params.get("start_date") + " - " + params.get("end_phase") + params.get("end_date"), index = False)
   else:
-    output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + params.get("start_date") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + params.get("end_date") + ".xlsx", sheet_name = params.get("start_phase") + params.get("start_date") + " - " + params.get("end_phase") + params.get("end_date"), index = False)
+    output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/" + phases.get(params.get("end_phase")) + "/2. Position Reports/Position Change Reports/Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + params.get("start_date") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + params.get("end_date") + ".xlsx", sheet_name = params.get("start_phase") + params.get("start_date") + " - " + params.get("end_phase") + params.get("end_date"), index = False)
 else:
   if params.get("type") == "All":
-    output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/All Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + ".xlsx", sheet_name = params.get("start_phase") + " - " + params.get("end_phase"), index = False)
+    output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/" + phases.get(params.get("end_phase")) + "/2. Position Reports/Position Change Reports/All Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + ".xlsx", sheet_name = params.get("start_phase") + " - " + params.get("end_phase"), index = False)
   else:
-    output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/3. TLS/2. Position Reports/Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + ".xlsx", sheet_name = params.get("start_phase") + " - " + params.get("end_phase"), index = False)
+    output.to_excel("G:/Fiscal Years/Fiscal 2024/Planning Year/" + phases.get(params.get("end_phase")) + "/2. Position Reports/Position Change Reports/Position Changes FY" + params.get("start_yr") + " " + params.get("start_phase") + " - FY" + params.get("end_yr") + " " + params.get("end_phase") + ".xlsx", sheet_name = params.get("start_phase") + " - " + params.get("end_phase"), index = False)
 
