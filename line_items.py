@@ -5,11 +5,11 @@ from pandas.testing import assert_frame_equal
 
 #set start and end points
 #CLS, Proposal, TLS, FinRec, BoE, Cou, Adopted
-params = {"start_date" : "03-16",
+params = {"start_date" : "03-22",
 "start_phase" : "TLS",
 "start_yr" : "24",
-"end_date" : "03-17",
-"end_phase" : "TLS",
+"end_date" : "03-22",
+"end_phase" : "FinRec",
 "end_yr" : "24",
 "fy" : "24",
 "yr" : "23", #calendar year for file names
@@ -32,7 +32,7 @@ line_start = pd.read_excel(params["line.start"] + phases.get(params.get("start_p
 line_end = pd.read_excel(params["line.end"] + phases.get(params.get("end_phase")) + "/1. Line Item Reports/line_items_2023-"+ params.get("end_date") + ".xlsx", sheet_name = "Details")
 ##if different phases
 # line_end = line_end.rename(columns = {"FY24 Proposal":"FY24 PROP"})
-# line_end = line_end.drop(["FY24 TLS"], axis = 1)
+line_end = line_end.drop(["FY24 FINREC"], axis = 1)
 
 try:
   assert line_start.columns == line_end.columns

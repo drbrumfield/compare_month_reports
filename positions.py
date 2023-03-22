@@ -8,11 +8,11 @@ from pandas.testing import assert_frame_equal
 #All positions or OPCs
 params = {"type" : "All",
 "tab" : "AllPositions",
-"start_date" : "03-16_TLS",
+"start_date" : "03-20",
 "start_phase" : "TLS",
 "start_yr" : "24",
-"end_date" : "03-17",
-"end_phase" : "TLS",
+"end_date" : "03-22",
+"end_phase" : "FinRec",
 "end_yr" : "24",
 "fy" : "24",
 "yr" : "23", #calendar year for file names
@@ -40,10 +40,10 @@ def whitespace_remover(df):
 ###start
 if params.get("type") == "All":
   position_start = pd.read_excel(params["position.start"] + phases.get(params.get("start_phase")) + "/2. Position Reports/AllPositions_2023-" + params.get("start_date") + ".xlsx", sheet_name = params.get("tab"))
-  position_start = position_start.drop_duplicates(subset = "JOB NUMBER", keep = "last")
-  position_start = position_start.drop(['ADOPTED'], axis = 1)
   position_start.columns = position_start.columns.str.upper()
   position_start = position_start.rename(columns = {"BUDGETED SALARY ": "BUDGETED SALARY", "PROJECTED SALARY": "SALARY", "DETAILED FUND NAME ": "DETAILED FUND NAME", "JOB  NUMBER": "JOB NUMBER", "SI NAME":"SI ID NAME", "T CODE":"STATUS", "FY24 PROPOSAL" : "BUDGETED SALARY", "PORJECTED SALARY" : "SALARY", "TOTAL BUDGED COST" : "TOTAL COST"})
+  position_start = position_start.drop_duplicates(subset = "JOB NUMBER", keep = "last")
+  position_start = position_start.drop(['FUNDING'], axis = 1)
   position_start = position_start.infer_objects()
   position_start["GRADE"] = position_start["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
   whitespace_remover(position_start)
@@ -66,10 +66,10 @@ else:
 ###end
 if params.get("type") == "All":
   position_end = pd.read_excel(params["position.end"]  + phases.get(params.get("end_phase")) + "/2. Position Reports/AllPositions_2023-" + params.get("end_date") + ".xlsx", sheet_name = params.get("tab"))
-  position_end = position_end.drop_duplicates(subset = "JOB NUMBER", keep = "last")
-  position_end = position_end.drop(['ADOPTED'], axis = 1)
   position_end.columns = position_end.columns.str.upper()
   position_end = position_end.rename(columns = {"BUDGETED SALARY ": "BUDGETED SALARY", "PROJECTED SALARY": "SALARY", "DETAILED FUND NAME ": "DETAILED FUND NAME", "JOB  NUMBER": "JOB NUMBER", "SI NAME":"SI ID NAME", "T CODE":"STATUS", "FY24 PROPOSAL" : "BUDGETED SALARY", "PORJECTED SALARY" : "SALARY", "TOTAL BUDGED COST" : "TOTAL COST"})
+  position_end = position_end.drop_duplicates(subset = "JOB NUMBER", keep = "last")
+  position_end = position_end.drop(['FUNDING'], axis = 1)
   position_end = position_end.infer_objects()
   position_end["GRADE"] = position_end["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
   whitespace_remover(position_end)
