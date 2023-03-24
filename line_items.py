@@ -6,9 +6,9 @@ from pandas.testing import assert_frame_equal
 #set start and end points
 #CLS, Proposal, TLS, FinRec, BoE, Cou, Adopted
 params = {"start_date" : "03-22",
-"start_phase" : "TLS",
+"start_phase" : "FinRec",
 "start_yr" : "24",
-"end_date" : "03-22",
+"end_date" : "03-24",
 "end_phase" : "FinRec",
 "end_yr" : "24",
 "fy" : "24",
@@ -27,12 +27,12 @@ phases = {"CLS" : "1. CLS",
 
 ##import ====
 line_start = pd.read_excel(params["line.start"] + phases.get(params.get("start_phase")) + "/1. Line Item Reports/line_items_2023-" + params.get("start_date") + ".xlsx", sheet_name = "Details")
-# line_start = line_start.drop(["FY24 TLS"], axis = 1)
 
 line_end = pd.read_excel(params["line.end"] + phases.get(params.get("end_phase")) + "/1. Line Item Reports/line_items_2023-"+ params.get("end_date") + ".xlsx", sheet_name = "Details")
-##if different phases
-# line_end = line_end.rename(columns = {"FY24 Proposal":"FY24 PROP"})
-line_end = line_end.drop(["FY24 FINREC"], axis = 1)
+if params.get("start_phase") != params.get("end_phase") :
+  line_end = line_end.drop(["FY24 " + params.get("end_phase").upper()], axis = 1)
+else:
+  pass
 
 try:
   assert line_start.columns == line_end.columns
@@ -60,6 +60,7 @@ output = output.sort_values(by = ["Agency ID", "Program ID", "Activity ID", "Fun
 print("CLS Starting Total: ", line_start["FY24 CLS"].sum(), "CLS Ending Total: ", line_end["FY24 CLS"].sum(), "\n", "Difference of: ", line_end["FY24 CLS"].sum()- line_start["FY24 CLS"].sum())
 print("Proposal Starting Total: ", line_start["FY24 PROP"].sum(), "Proposal Ending Total: ", line_end["FY24 PROP"].sum(), "\n", "Difference of: ", line_end["FY24 PROP"].sum()- line_start["FY24 PROP"].sum())
 print("TLS Starting Total: ", line_start["FY24 TLS"].sum(), "TLS Ending Total: ", line_end["FY24 TLS"].sum(), "\n", "Difference of: ", line_end["FY24 TLS"].sum()- line_start["FY24 TLS"].sum())
+print("FinRec Starting Total: ", line_start["FY24 FINREC"].sum(), "FinRec Ending Total: ", line_end["FY24 FINREC"].sum(), "\n", "Difference of: ", line_end["FY24 TLS"].sum()- line_start["FY24 TLS"].sum())
 
 ##export =======
 if params.get("start_phase") == params.get("end_phase"):
