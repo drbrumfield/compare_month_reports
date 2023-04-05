@@ -5,10 +5,10 @@ from pandas.testing import assert_frame_equal
 
 #set start and end points
 #CLS, Proposal, TLS, FinRec, BoE, Cou, Adopted
-params = {"start_date" : "03-22",
+params = {"start_date" : "04-04d",
 "start_phase" : "FinRec",
 "start_yr" : "24",
-"end_date" : "03-24",
+"end_date" : "04-05",
 "end_phase" : "FinRec",
 "end_yr" : "24",
 "fy" : "24",
@@ -35,7 +35,9 @@ else:
   pass
 
 try:
-  assert line_start.columns == line_end.columns
+  print("Columns are the same for both files: ")
+  assert(line_start.columns.all() == line_end.columns.all())
+  print(line_start.columns.all() == line_end.columns.all())
 except AssertionError as msg:
   print(msg)
 
@@ -60,7 +62,7 @@ output = output.sort_values(by = ["Agency ID", "Program ID", "Activity ID", "Fun
 print("CLS Starting Total: ", line_start["FY24 CLS"].sum(), "CLS Ending Total: ", line_end["FY24 CLS"].sum(), "\n", "Difference of: ", line_end["FY24 CLS"].sum()- line_start["FY24 CLS"].sum())
 print("Proposal Starting Total: ", line_start["FY24 PROP"].sum(), "Proposal Ending Total: ", line_end["FY24 PROP"].sum(), "\n", "Difference of: ", line_end["FY24 PROP"].sum()- line_start["FY24 PROP"].sum())
 print("TLS Starting Total: ", line_start["FY24 TLS"].sum(), "TLS Ending Total: ", line_end["FY24 TLS"].sum(), "\n", "Difference of: ", line_end["FY24 TLS"].sum()- line_start["FY24 TLS"].sum())
-print("FinRec Starting Total: ", line_start["FY24 FINREC"].sum(), "FinRec Ending Total: ", line_end["FY24 FINREC"].sum(), "\n", "Difference of: ", line_end["FY24 TLS"].sum()- line_start["FY24 TLS"].sum())
+print("FinRec Starting Total: ", line_start["FY24 FINREC"].sum(), "FinRec Ending Total: ", line_end["FY24 FINREC"].sum(), "\n", "Difference of: ", line_end["FY24 FINREC"].sum()- line_start["FY24 FINREC"].sum())
 
 ##export =======
 if params.get("start_phase") == params.get("end_phase"):

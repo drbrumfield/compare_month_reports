@@ -8,10 +8,10 @@ from pandas.testing import assert_frame_equal
 #All positions or OPCs
 params = {"type" : "All",
 "tab" : "AllPositions",
-"start_date" : "03-22",
+"start_date" : "04-04c",
 "start_phase" : "FinRec",
 "start_yr" : "24",
-"end_date" : "03-24",
+"end_date" : "04-05",
 "end_phase" : "FinRec",
 "end_yr" : "24",
 "fy" : "24",
@@ -48,7 +48,6 @@ if params.get("type") == "All":
   position_start["GRADE"] = position_start["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
   whitespace_remover(position_start)
 
-  
 else:
   position_start = pd.read_excel(params["position.start"] + phases.get(params.get("start_phase")) + "/2. Position Reports/PositionsSalariesOPCs_2023-" + params.get("start_date") + ".xlsx", sheet_name = params.get("tab"))
   position_start = position_start.drop_duplicates(subset = "JOB NUMBER", keep = "last")
@@ -84,24 +83,6 @@ else:
   position_end["GRADE"] = position_end["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
   whitespace_remover(position_end)
   position_end.columns = position_end.columns.str.upper()
-
-
-##add empty dummy rows to get same # of rows ======
-# x = len(position_start)
-# y = len(position_end)
-
-
-##test comparability ==============
-# position_end = position_end.reindex(list(range(0, x))).reset_index(drop = True)
-# 
-# assert_frame_equal(position_start.reset_index(drop=True), position_end.reset_index(drop=True))
-# 
-# position_start.equals(position_end)
-# 
-##compare() function doesn't use unique ID, so takes df in whatever order the rows are in
-# result = position_start.reset_index(drop=True).compare(position_end.reset_index(drop=True), align_axis = 1, result_names = ("CLS", "Proposal"))
-# 
-# output = result.replace(np.nan, None, regex = True)
 
 ##compare ================= 
 cols = list(position_start.columns)
