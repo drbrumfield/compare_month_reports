@@ -8,11 +8,11 @@ from pandas.testing import assert_frame_equal
 #All positions or OPCs
 params = {"type" : "All",
 "tab" : "AllPositions",
-"start_date" : "04-04c",
-"start_phase" : "FinRec",
+"start_date" : "04-11",
+"start_phase" : "BoE",
 "start_yr" : "24",
-"end_date" : "04-05",
-"end_phase" : "FinRec",
+"end_date" : "04-12",
+"end_phase" : "BoE",
 "end_yr" : "24",
 "fy" : "24",
 "yr" : "23", #calendar year for file names
@@ -60,7 +60,6 @@ else:
   position_start["GRADE"] = position_start["GRADE"].astype(str).str.pad(width=3, side='left', fillchar='0')
   whitespace_remover(position_start)
   position_start.columns = position_start.columns.str.upper()
-
 
 ###end
 if params.get("type") == "All":
