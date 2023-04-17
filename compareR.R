@@ -1,13 +1,53 @@
 ##more readable output than Python script##
+.libPaths("C:/Users/sara.brumfield2/OneDrive - City Of Baltimore/Documents/r_library")
+library(tidyverse)
+library(dplyr)
+library(magrittr)
+library(dataCompareR)
+library(arsenal)
+library(rio)
+devtools::load_all("G:/Analyst Folders/Sara Brumfield/_packages/bbmR")
+
+##data sets
+bpfs = query_db("PLANNINGYEAR24", "BUDGETS_N_ACTUALS_CLEAN_DF") %>%
+  select(-adopted, -ends_with("Name")) %>%
+  collect() %>%
+  set_names(rename_cols(.)) %>%
+  mutate(fiscalyear = paste(gsub("^20", "FY", fiscalyear), "Actual")) %>%
+  pivot_wider(names_from = "fiscalyear", values_from = "actual", values_fn = sum) %>%
+  select(ends_with("ID"), `FY22 Actual`) %>%
+  filter(!is.na(`FY22 Actual`)) %>%
+  group_by(`Agency ID`, `Service ID`, `Activity ID`, `Fund ID`, `Object ID`, `Subobject ID`) %>%
+  summarise_at(vars(`FY22 Actual`), sum, na.rm = TRUE) %>%
+  mutate_at(vars(group_cols()), as.numeric) %>%
+  mutate(`Subobject ID` = as.numeric(`Subobject ID`)) %>%
+  distinct() %>%
+  arrange(`Agency ID`, `Service ID`, `Activity ID`, `Fund ID`, `Object ID`, `Subobject ID`)
+
+bpfs_total = sum(bpfs$`FY22 Actual`, na.rm = TRUE)
+export_excel(bpfs, "FY22 Actuals BPFS", "inputs/FY22 Actuals BPFS.xlsx")
+
+baps = import("inputs/BAPS Actual_FY22_V2.xlsx", which = "CurrentYearExpendituresActLevel") %>%
+  select(ends_with("ID"), `BAPS YTD EXP`) %>%
+  rename(`FY22 Actual` = `BAPS YTD EXP`, `Service ID` = `Program ID`) %>%
+  filter(!is.na(`FY22 Actual`) & !is.na(`Subobject ID`)) %>%
+  arrange(`Agency ID`, `Service ID`, `Activity ID`, `Fund ID`, `Object ID`, `Subobject ID`)
+  # group_by(`Agency ID`, `Service ID`, `Activity ID`, `Fund ID`, `Object ID`, `Subobject ID`) %>%
+  # summarise_at(vars(`FY22 Actual`), sum, na.rm = TRUE) 
+
+baps_total = sum(baps$`FY22 Actual`, na.rm = TRUE)
+export_excel(baps, "FY22 Actuals BAPS", "inputs/FY22 Actuals BAPS.xlsx")
+
+diff_df <- dplyr::all_equal(baps, bpfs)
 
 ##experiment code w/ dataCompareR package =====
 # position_start %>% filter(duplicated(`Job Number`))
 # 
-# df = rCompare(position_end, position_start, keys = 'Job Number')
-# 
-# z = dataCompareR:::generateMismatchData(x = df, dfA = position_end, dfB = position_start)
-# z = dataCompareR:::createMismatches(df, df$mismatches, keys = 'JOB.NUMBER')
-# 
+df = rCompare(baps, bpfs, keys = c('Agency ID', 'Service ID', 'Activity ID', 'Fund ID', 'Object ID', 'Subobject ID', 'FY22 Actual'))
+
+z = dataCompareR:::generateMismatchData(x = df, dfA = baps, dfB = bpfs)
+z = dataCompareR:::createMismatches(df, df$mismatches, keys = c('Agency.ID', 'Service.ID', 'Activity.ID', 'Fund.ID', 'Object.ID', 'Subobject.ID', 'FY22.Actual'))
+
 # data = data.frame()
 # for (item in df$mismatches) {
 #   data = rbind(item, data)
@@ -24,15 +64,15 @@
 # saveReport(df, reportName = "outputs/Positions_CLS_Adopted")
 
 ##dplyr anti_join() on all columns =====
-col_names = colnames(position_start)
+col_names = colnames(bpfs)
 
-df = anti_join(position_start, position_end, by = c(col_names))
+df = anti_join(baps, bpfs, by = c(col_names))
 
-# not_dupes = df %>% distinct()
-# 
-# dupes = anti_join(df, not_dupes, by = c(colnames(df)))
+not_dupes = df %>% distinct()
 
-df = comparedf(position_end, position_start, by = "Job Number")
+dupes = anti_join(df, not_dupes, by = c(colnames(df)))
+
+df = comparedf(baps, bpfs)
 summary = summary(df)
 
 table = summary$diffs.table  

@@ -5,10 +5,10 @@ from pandas.testing import assert_frame_equal
 
 #set start and end points
 #CLS, Proposal, TLS, FinRec, BoE, Cou, Adopted
-params = {"start_date" : "04-11",
+params = {"start_date" : "04-14",
 "start_phase" : "BoE",
 "start_yr" : "24",
-"end_date" : "04-12",
+"end_date" : "04-17",
 "end_phase" : "BoE",
 "end_yr" : "24",
 "fy" : "24",
@@ -40,11 +40,27 @@ try:
   print(line_start.columns.all() == line_end.columns.all())
 except AssertionError as msg:
   print(msg)
+  
+# baps = pd.read_excel("inputs/FY22 Actuals BAPS.xlsx")
+# bpfs = pd.read_excel("inputs/FY22 Actuals BPFS.xlsx")
+# 
+# cols = list(baps)
+# 
+# result = baps.merge(bpfs, how = "outer", indicator = True, on = cols, suffixes = ("BAPS", "BPFS"))
+# output = result.loc[lambda x : x['_merge'] != 'both']
+# output["Phase"] = output["_merge"].replace({"left_only":"BAPS", "right_only":"BPFS"})
+# output = output.drop(labels = ["_merge"], axis = 1)
+# 
+# label = output.pop("Phase")
+# output.insert(0, "Phase", label)
+# output = output.sort_values(by = ["Agency ID", "Service ID", "Activity ID", "Fund ID", "Object ID", "Subobject ID"])
+
 
 ##compare ================= 
 cols = list(line_start.columns)
 try:
   result = line_start.merge(line_end, how = "outer", indicator = True, on = cols, suffixes = (params.get("start_phase"), params.get("end_phase")))
+  print("All good.")
 except KeyError as e:
   if str(e) == "FY24 PROP":
     line_end = line_end.rename(columns = {"FY24 Proposal":"FY24 PROP"})
