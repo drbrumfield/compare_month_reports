@@ -5,10 +5,10 @@ from pandas.testing import assert_frame_equal
 
 #set start and end points
 #CLS, Proposal, TLS, FinRec, BoE, Cou, Adopted
-params = {"start_date" : "04-14",
+params = {"start_date" : "04-25b",
 "start_phase" : "BoE",
 "start_yr" : "24",
-"end_date" : "04-17",
+"end_date" : "04-26",
 "end_phase" : "BoE",
 "end_yr" : "24",
 "fy" : "24",
@@ -67,7 +67,6 @@ except KeyError as e:
     result = line_start.merge(line_end, how = "outer", indicator = True, on = cols, suffixes = (params.get("start_phase"), params.get("end_phase")))
   else:
     print(e)
-  
   
 output = result.loc[lambda x : x['_merge'] != 'both']
 
