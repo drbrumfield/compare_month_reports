@@ -8,10 +8,10 @@ from pandas.testing import assert_frame_equal
 #All positions or OPCs
 params = {"type" : "All",
 "tab" : "AllPositions",
-"start_date" : "04-25b",
+"start_date" : "05-01",
 "start_phase" : "BoE",
 "start_yr" : "24",
-"end_date" : "04-26",
+"end_date" : "05-02",
 "end_phase" : "BoE",
 "end_yr" : "24",
 "fy" : "24",
