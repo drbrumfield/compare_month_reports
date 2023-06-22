@@ -5,10 +5,10 @@ from pandas.testing import assert_frame_equal
 
 #set start and end points
 #CLS, Proposal, TLS, FinRec, BoE, Cou, Adopted
-params = {"start_date" : "05-10b",
-"start_phase" : "BoE",
+params = {"start_date" : "06-14",
+"start_phase" : "Cou",
 "start_yr" : "24",
-"end_date" : "05-15",
+"end_date" : "06-20",
 "end_phase" : "Cou",
 "end_yr" : "24",
 "fy" : "24",
@@ -87,6 +87,7 @@ print("Proposal Starting Total: ", line_start["FY24 PROP"].sum(), "Proposal Endi
 print("TLS Starting Total: ", line_start["FY24 TLS"].sum(), "TLS Ending Total: ", line_end["FY24 TLS"].sum(), "\n", "Difference of: ", line_end["FY24 TLS"].sum()- line_start["FY24 TLS"].sum())
 print("FinRec Starting Total: ", line_start["FY24 FINREC"].sum(), "FinRec Ending Total: ", line_end["FY24 FINREC"].sum(), "\n", "Difference of: ", line_end["FY24 FINREC"].sum()- line_start["FY24 FINREC"].sum())
 print("BoE Starting Total: ", line_start["FY24 BOE"].sum(), "BoE Ending Total: ", line_end["FY24 BOE"].sum(), "\n", "Difference of: ", line_end["FY24 BOE"].sum()- line_start["FY24 BOE"].sum())
+print("COU Starting Total: ", line_start["FY24 COU"].sum(), "COU Ending Total: ", line_end["FY24 COU"].sum(), "\n", "Difference of: ", line_end["FY24 COU"].sum()- line_start["FY24 COU"].sum())
 
 ##export =======
 if params.get("start_phase") == params.get("end_phase"):
