@@ -5,10 +5,10 @@ from pandas.testing import assert_frame_equal
 
 #set start and end points
 #CLS, Proposal, TLS, FinRec, BoE, Cou, Adopted
-params = {"start_date" : "06-20",
+params = {"start_date" : "06-23",
 "start_phase" : "Cou",
 "start_yr" : "24",
-"end_date" : "06-23",
+"end_date" : "07-31",
 "end_phase" : "Cou",
 "end_yr" : "24",
 "fy" : "24",
