@@ -35,6 +35,5 @@ output = output.drop(labels = ["_merge"], axis = 1)
 
 label = output.pop("Phase")
 output.insert(0, "Phase", label)
-output = output.sort_values(by = ["Agency", "Service", "Fund", "Object", "Spend Category"])
 
-output.to_excel("outputs/FY25 Line Item Comparison 11-29 to 11-30.xlsx", index = False)
+output.to_excel("outputs/FY23 Tax Roll Comparison.xlsx", index = False)
