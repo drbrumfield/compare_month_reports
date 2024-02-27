@@ -11,21 +11,23 @@ library(tidyverse)
 source("C:/Users/sbrumfield/OneDrive - Howard County/Documents/GitHub Repos/bbmR/R/export_excel.R")
 
 # crystal generated ttx needs the quote = "" parameter to correctly gather all rows; otherwise some rows will be missing
-crystal <- read.delim("T:/SHARED/MUNIS Archives/MUNIS Scanline Files/Scanline TTX Files/Processed/Scanline-02-26-2024.ttx", header = FALSE, 
+crystal <- read.delim("T:/SHARED/MUNIS Archives/MUNIS Scanline Files/Scanline TTX Files/Scanline-02-27-2024.ttx", header = FALSE, 
                       skip = 8, col.names = c("Year", "Category", "Bill Number", "Account", "Name", "Name2", "Addr Line 1",
                                               "Addr line 2", "City", "State", "Zip", "TotalDue"), 
                       sep = "\t", quote = "") %>%
   # this is the only way to remove the trailing whitespace; trimws and str_trim don't work
-  # TotalDue has commas in number format
-  mutate(Account = gsub(pattern = "(\\s)", replacement = "", x = Account))
+  # TotalDue has commas in number format and trailing 0
+  mutate(Account = gsub(pattern = "(\\s)", replacement = "", x = Account),
+         TotalDue = gsub(pattern = "(0$)", replacement = "", x = TotalDue),
+         TotalDue = gsub(pattern = ",", replacement = "", x = TotalDue))
 
-python <- read.delim("T:/SHARED/MUNIS Archives/MUNIS Scanline Files/Scanline TTX Files/Scanline-02-26-2024.ttx", header = FALSE, 
+python <- read.delim("T:/SHARED/MUNIS Archives/MUNIS Scanline Files/Scanline TTX Files/Scanlinev2-02-27-2024.ttx", header = FALSE, 
                      skip = 8, col.names = c("Year", "Category", "Bill Number", "Account", "Name", "Name2", "Addr Line 1",
                                              "Addr line 2", "City", "State", "Zip", "TotalDue"), 
                      sep = "\t", quote = "") %>%
   #convert data type
   mutate(TotalDue = as.character(TotalDue),
-         TotalDue = case_when(TotalDue == "0" ~ "0.00",
+         TotalDue = case_when(TotalDue == "0" ~ "0.0",
                               TRUE ~ TotalDue),
          Account = gsub(pattern = "(\\s)", replacement = "", x = Account))
 
