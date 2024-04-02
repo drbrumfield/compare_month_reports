@@ -10,6 +10,12 @@ library(tidyverse)
 
 source("C:/Users/sbrumfield/OneDrive - Howard County/Documents/GitHub Repos/bbmR/R/export_excel.R")
 
+## define reports to compare ====
+# munis monthly reports
+munis1 <- import("T:/SHARED/MUNIS Archives/MUNIS Data Files/Munis Monthly Data-04-01-2024.xlsx") %>%
+  mutate(YEAR = as.character(YEAR))
+munis2 <- import("T:/SHARED/MUNIS Archives/MUNIS Data Files/Munis Monthly Data-04-01-2024_2.xlsx") %>%
+  filter(YEAR > 2004)
 # crystal generated ttx needs the quote = "" parameter to correctly gather all rows; otherwise some rows will be missing
 crystal <- read.delim("T:/SHARED/MUNIS Archives/MUNIS Scanline Files/Scanline TTX Files/Scanline-02-27-2024.ttx", header = FALSE, 
                       skip = 8, col.names = c("Year", "Category", "Bill Number", "Account", "Name", "Name2", "Addr Line 1",
@@ -36,20 +42,20 @@ assert_that(nrow(python) == nrow(crystal))
 
 ##dplyr compare method====
 
-notinold <- anti_join(python, crystal, by = c("Year", "Account", "Category", "Bill.Number"))
-notinnew <- anti_join(crystal, python, by = c("Year", "Account", "Category", "Bill.Number"))
+notinold <- anti_join(munis1, munis2, by = c("YEAR", "CHARGE CODE", "AMOUNT"))
+notinnew <- anti_join(munis2, munis1, by = c("YEAR", "CHARGE CODE", "AMOUNT"))
 
 ##return all rows from x without a match in y
-diff1 <- anti_join(python, crystal, by = c("Year", "Account", "Category", "Bill.Number"))
-diff2 <- anti_join(crystal, python, by = c("Year", "Account", "Category", "Bill.Number"))
+diff1 <- anti_join(munis1, munis2, by = c("YEAR", "CHARGE CODE", "AMOUNT"))
+diff2 <- anti_join(munis2, munis1, by = c("YEAR", "CHARGE CODE", "AMOUNT"))
 
 alldiff <- rbind(diff1, diff2) %>%
   arrange(`Year`, `Account`, `Category`, `Bill.Number`)
 
 ##comparedf package ===
 
-df <- compare_df(python, crystal,
-                 change_markers = c("python", "crystal"))
+df <- compare_df(munis1, munis2,
+                 change_markers = c("auto", "crystal"))
 
 comp_df <- df$comparison_df
 create_output_table(df, change_col_name  = "Added/Removed", group_col_name = "Line Number", output_type = "html", file_name = "C:/Users/sbrumfield/OneDrive - Howard County/Documents/SDAT Comparisons/SDAT Sep-Dec 2023 Differences.html", limit = 7000)
