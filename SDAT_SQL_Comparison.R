@@ -12,7 +12,7 @@ source("C:/Users/sbrumfield/OneDrive - Howard County/Documents/GitHub Repos/bbmR
 ##load data files to compare====
 ##note: commonly the first row of the SDAT file if the SQL Server Import Wizard has first row has column headers checked
 
-new <- read.delim("M:/SDAT downloads/Jan 2024/txt_Real_Update", header = FALSE, sep = "\t") %>%
+new <- read.delim("M:/SDAT downloads/Jul 2024/txt_Real_Update.txt", header = FALSE, sep = "\t") %>%
   ##convert data type
   mutate(V2 = as.character(V1),
          ##create unique key for each row
@@ -175,5 +175,56 @@ export_excel(df = alldiff,
 #              file_name = "C:/Users/sbrumfield/OneDrive - Howard County/Documents/SDAT Comparisons/SDAT Sep-Dec 2023 Differences.xlsx", 
 #              type = "existing")
 
+##by district
+districts <- new_cols %>%
+  mutate(
+    CurrentAssessmentPhaseIn = as.numeric(str_squish(str_sub(V2, start = 1098, end = 1106))),
+    CurrentAssessmentTotal = as.numeric(str_squish(str_sub(V2, start = 1107, end = 1115))),
+    AssessmentStateCredit = as.numeric(str_squish(str_sub(V2, start = 1313, end = 1321))),
+    AssessmentCountyCredit = as.numeric(str_squish(str_sub(V2, start = 1304, end = 1312))),
+    CurrentAssessmentCountyCredit = as.numeric(str_squish(str_sub(V2, start = 1359, end = 1367))),
+    CurrentAssessmentStateCredit = as.numeric(str_squish(str_sub(V2, start = 1341, end = 1349))),
+    TaxRollCountyAssessment = as.numeric(str_squish(str_sub(V2, start = 1639, end = 1647))),
+    TaxRollStateAssessment = as.numeric(str_squish(str_sub(V2, start = 1648, end = 1656)))
+  ) %>%
+  select(District, CurrentAssessmentPhaseIn:TaxRollStateAssessment) %>%
+  group_by(District) %>%
+  summarise(across(CurrentAssessmentPhaseIn:TaxRollStateAssessment, sum, na.rm = TRUE))
+
+
+##fifth district only
+fifth <- new_cols %>%
+  filter(`District` == "05") %>%
+  mutate(CurrentAssessmentPhaseIn = str_squish(str_sub(V2, start = 1098, end = 1106)),
+         CurrentAssessmentTotal = str_squish(str_sub(V2, start = 1107, end = 1115)),
+         AssessmentStateCredit = str_squish(str_sub(V2, start = 1313, end = 1321)),
+         AssessmentCountyCredit = str_squish(str_sub(V2, start = 1304, end = 1312)),
+         CurrentAssessmentCountyCredit = str_squish(str_sub(V2, start = 1359, end = 1367)),
+         CurrentAssessmentStateCredit = str_squish(str_sub(V2, start = 1341, end = 1349)),
+         TaxRollCountyAssessment = str_squish(str_sub(V2, start = 1639, end = 1647)),
+         TaxRollStateAssessment = str_squish(str_sub(V2, start = 1648, end = 1656)))
+
+fifth$ID <- substr(fifth$V1, nchar(fifth$V1) - 6, nchar(fifth$V1))
+
+
+taxroll <- import("C:/Users/sbrumfield/OneDrive - Howard County/Documents/Munis/Tax Rolls/2024 Initial Tax Roll.xlsx", which = "SQL Tax Roll") 
+
+taxroll <- taxroll %>%
+  mutate(ID = as.character(`PARCEL NUMBER`))
+
+taxrollfifth <- taxroll[grep("^5", taxroll$ID), ]
+
+fifth <- fifth %>%
+  mutate(TaxRollCountyAssessment = as.numeric(TaxRollCountyAssessment) - as.numeric(CurrentAssessmentCountyCredit),
+         TaxRollStateAssessment = as.numeric(TaxRollStateAssessment) - as.numeric(CurrentAssessmentStateCredit))
+
+countydiff <- anti_join(fifth, taxrollfifth, by = c("ID", "TaxRollCountyAssessment" = "COUNTY ASSESSMENT"))
+
+statediff <- anti_join(fifth, taxrollfifth, by = c("ID", "TaxRollStateAssessment" = "STATE ASSESSMENT"))
+
+export_excel(df = fifth, 
+             tab_name = "5th District", 
+             file_name = "M:/SDAT downloads/Jul 2024/Fifth District Assessment Check.xlsx", 
+             type = "new")
 
 ##isolate just changed records to be load in SDAT format (V2 col)
